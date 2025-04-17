@@ -47,7 +47,7 @@ let footer = document.querySelector('footer')
 let timer = 0
 
 if (document.getElementById("heading").classList.contains("title")) {
-    document.querySelector(".title").textContent = 'FILE STREAM'
+    document.querySelector(".title").textContent = 'CINE ESTRENOS'
 }
 
 // adding under in home btn at first 
