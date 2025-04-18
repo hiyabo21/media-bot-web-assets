@@ -243,9 +243,24 @@ function n_player() {
 }
 
 function streamDownload() {
+    const nameElement = document.getElementById('myDiv');
+    let fileName = nameElement ? nameElement.textContent.trim() : 'video';
+
+    // Extraer la extensión desde el nombre si existe (por ej. .mp4, .mkv)
+    let extension = '';
+    const match = fileName.match(/\.(mp4|mkv|webm|avi)$/i);
+    if (match) {
+        extension = match[0]; // conserva la extensión original
+        fileName = fileName.replace(/\.(mp4|mkv|webm|avi)$/i, ''); // limpia el nombre base
+    } else {
+        extension = '.mp4'; // por defecto
+    }
+
+    const finalName = fileName + extension;
+
     const link = document.createElement('a');
     link.href = streamlink;
-    link.download = ''; 
+    link.setAttribute('download', finalName);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
