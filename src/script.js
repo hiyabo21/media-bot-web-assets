@@ -243,6 +243,9 @@ function n_player() {
 }
 
 function copyStreamLink() {
+  const videolink = window.location.href;
+  const streamlink = videolink.replace("/player/", "/stream/");
+    
   const linkToCopy = streamlink.toLowerCase();
 
   if (!navigator.clipboard) {
