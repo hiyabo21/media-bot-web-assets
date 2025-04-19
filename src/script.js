@@ -222,7 +222,7 @@ document.addEventListener('keydown', function (e) {
 
 
 const videolink = window.location.href;
-const streamlink = videolink.replace("/watch/", "/dl/");
+const streamlink = videolink.replace("/play/", "/stream/");
 
 function vlc_player() {
     const openstreamlink = streamlink.replace(/^https?:\/\//, '');
@@ -240,30 +240,6 @@ function n_player() {
     const openstreamlink = streamlink.replace(/^https?:\/\//, '');
     const openNplayer = `intent://${openstreamlink}#Intent;package=com.newin.nplayer.pro;action=android.intent.action.VIEW;end`;
     window.location.href = openNplayer;
-}
-
-function streamDownload() {
-    const nameElement = document.getElementById('myDiv');
-    let fileName = nameElement ? nameElement.textContent.trim() : 'video';
-
-    // Extraer la extensión desde el nombre si existe (por ej. .mp4, .mkv)
-    let extension = '';
-    const match = fileName.match(/\.(mp4|mkv|webm|avi)$/i);
-    if (match) {
-        extension = match[0]; // conserva la extensión original
-        fileName = fileName.replace(/\.(mp4|mkv|webm|avi)$/i, ''); // limpia el nombre base
-    } else {
-        extension = '.mp4'; // por defecto
-    }
-
-    const finalName = fileName + extension;
-
-    const link = document.createElement('a');
-    link.href = streamlink;
-    link.setAttribute('download', finalName);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
 }
 
 function copyStreamLink() {
