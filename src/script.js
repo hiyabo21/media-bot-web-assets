@@ -222,7 +222,7 @@ document.addEventListener('keydown', function (e) {
 
 
 const videolink = window.location.href;
-const streamlink = videolink.replace("/play/", "/stream/");
+const streamlink = videolink.replace("/player/", "/stream/");
 
 function vlc_player() {
     const openstreamlink = streamlink.replace(/^https?:\/\//, '');
