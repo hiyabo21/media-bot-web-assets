@@ -106,23 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
         settings: ['speed', 'quality', 'captions']
     });
 
-
-    // Ocultar slider Volumen
-    document.addEventListener("click", function (e) {
-        const volumeWrapper = e.target.closest(".plyr__volume");
-        const allVolumes = document.querySelectorAll(".plyr__volume");
-
-        allVolumes.forEach((vol) => {
-            if (vol !== volumeWrapper) {
-                vol.classList.remove("plyr__volume--open");
-            }
-        });
-
-        if (volumeWrapper) {
-            volumeWrapper.classList.toggle("plyr__volume--open");
-        }
-    });
-
     // 🎯 Doble toque para avanzar/retroceder 5s
     const videoWrapper = videoElement?.parentElement;
     if (videoWrapper && videoElement) {
