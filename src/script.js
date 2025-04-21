@@ -151,17 +151,116 @@ document.addEventListener("keydown", (e) => {
 // ==============================
 const streamlink = window.location.href.replace("/player/", "/stream/");
 
-function vlc_player() {
-    const open = streamlink.replace(/^https?:\/\//, '');
-    window.location.href = `vlc://${open}`;
+    async function copyStreamLink() {
+        const messageId = document.getElementById("messageId").innerText.trim();
+        const baseUrl = window.location.origin;
+        const tokenUrl = `${baseUrl}/secure_link/${messageId}`;
+
+        try {
+            const response = await fetch(tokenUrl);
+            if (!response.ok) throw new Error("No se pudo generar el link.");
+
+            const streamLink = await response.text();
+
+            // ✅ Método moderno si está disponible y seguro
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(streamLink);
+            } else {
+                // ⚠️ Fallback clásico
+                const textArea = document.createElement("textarea");
+                textArea.value = streamLink;
+                textArea.style.position = "fixed"; // evitar scroll
+                textArea.style.opacity = 0;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+            }
+
+            alert("✅ ¡Enlace de streaming copiado!\nPégalo en VLC o PotPlayer.");
+        } catch (error) {
+            alert("❌ Error al copiar el enlace: " + error.message);
+        }
+    }
+    
+async function vlc_player() {
+    const messageId = document.getElementById("messageId").innerText.trim();
+    const baseUrl = window.location.origin;
+    const tokenUrl = `${baseUrl}/secure_link/${messageId}`;
+
+    try {
+        const response = await fetch(tokenUrl);
+        if (!response.ok) throw new Error("No se pudo generar el link.");
+
+        const streamLink = await response.text();
+        const open = streamLink.replace(/^https?:\/\//, '');
+
+        // Intenta abrir VLC
+        window.location.href = `vlc://${open}`;
+
+        // También copia el link al portapapeles
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(streamLink);
+            alert("✅ Enlace para VLC copiado. Si no se abrió automáticamente, pégalo en VLC.");
+        } else {
+            alert("📋 Copia manualmente este enlace para VLC:\n" + streamLink);
+        }
+    } catch (error) {
+        alert("❌ Error al generar el enlace para VLC: " + error.message);
+    }
 }
 
-function mx_player() {
-    const open = streamlink.replace(/^https?:\/\//, '');
-    window.location.href = `intent://${open}#Intent;package=com.mxtech.videoplayer.ad;action=android.intent.action.VIEW;end`;
+async function mx_player() {
+    const messageId = document.getElementById("messageId").innerText.trim();
+    const baseUrl = window.location.origin;
+    const tokenUrl = `${baseUrl}/secure_link/${messageId}`;
+
+    try {
+        const response = await fetch(tokenUrl);
+        if (!response.ok) throw new Error("No se pudo generar el link.");
+
+        const streamLink = await response.text();
+        const open = streamLink.replace(/^https?:\/\//, '');
+
+        // Abrir en MX Player
+        window.location.href = `intent://${open}#Intent;package=com.mxtech.videoplayer.ad;action=android.intent.action.VIEW;end`;
+
+        // Copia al portapapeles como respaldo
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(streamLink);
+            alert("✅ Enlace para MX Player copiado. Si no se abre automáticamente, pégalo manualmente.");
+        } else {
+            alert("📋 Copia manualmente este enlace para MX Player:\n" + streamLink);
+        }
+    } catch (error) {
+        alert("❌ Error al generar el enlace para MX Player: " + error.message);
+    }
 }
 
-function n_player() {
-    const open = streamlink.replace(/^https?:\/\//, '');
-    window.location.href = `intent://${open}#Intent;package=com.newin.nplayer.pro;action=android.intent.action.VIEW;end`;
+async function n_player() {
+    const messageId = document.getElementById("messageId").innerText.trim();
+    const baseUrl = window.location.origin;
+    const tokenUrl = `${baseUrl}/secure_link/${messageId}`;
+
+    try {
+        const response = await fetch(tokenUrl);
+        if (!response.ok) throw new Error("No se pudo generar el link.");
+
+        const streamLink = await response.text();
+        const open = streamLink.replace(/^https?:\/\//, '');
+
+        // Abrir en nPlayer
+        window.location.href = `intent://${open}#Intent;package=com.newin.nplayer.pro;action=android.intent.action.VIEW;end`;
+
+        // Copia al portapapeles como respaldo
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(streamLink);
+            alert("✅ Enlace para nPlayer copiado. Si no se abre automáticamente, pégalo manualmente.");
+        } else {
+            alert("📋 Copia manualmente este enlace para nPlayer:\n" + streamLink);
+        }
+    } catch (error) {
+        alert("❌ Error al generar el enlace para nPlayer: " + error.message);
+    }
 }
