@@ -96,12 +96,32 @@ if (contactBtn) {
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
     const controls = [
-        'play-large', 'rewind', 'play', 'fast-forward',
+        'play-large', 'play',
         'progress', 'current-time', 'duration',
-        'mute', 'volume', 'captions', 'settings',
-        'pip', 'airplay', 'fullscreen'
+        'mute', 'volume', 
+        'settings', 'pip', 'airplay', 'fullscreen'
     ];
-    Plyr.setup('.player', { controls });
+    Plyr.setup('.player', { 
+        controls,
+        settings: ['speed', 'quality', 'captions']
+    });
+
+
+    // Ocultar slider Volumen
+    document.addEventListener("click", function (e) {
+        const volumeWrapper = e.target.closest(".plyr__volume");
+        const allVolumes = document.querySelectorAll(".plyr__volume");
+
+        allVolumes.forEach((vol) => {
+            if (vol !== volumeWrapper) {
+                vol.classList.remove("plyr__volume--open");
+            }
+        });
+
+        if (volumeWrapper) {
+            volumeWrapper.classList.toggle("plyr__volume--open");
+        }
+    });
 
     // 🎯 Doble toque para avanzar/retroceder 5s
     const videoWrapper = videoElement?.parentElement;
@@ -183,7 +203,7 @@ const streamlink = window.location.href.replace("/player/", "/stream/");
             alert("❌ Error al copiar el enlace: " + error.message);
         }
     }
-    
+
 async function vlc_player() {
     const messageId = document.getElementById("messageId").innerText.trim();
     const baseUrl = window.location.origin;
