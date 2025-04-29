@@ -96,58 +96,32 @@ if (contactBtn) {
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
     const controls = [
-        'play-large', 'play',
-        'progress', 'current-time', 'duration',
-        'mute', 'volume', 
-        'settings', 'pip', 'airplay', 'fullscreen'
+        'play-large',
+        'rewind',         // ⏪ Añade botón de retroceso 10s
+        'play',
+        'fast-forward',   // ⏩ Añade botón de avance 10s
+        'progress',
+        'current-time',
+        'duration',
+        //'mute',
+        'volume',
+        'captions',
+        'settings',
+        'pip',
+        'airplay',
+        'fullscreen'
     ];
-    Plyr.setup('.player', { 
+
+    Plyr.setup('.player', {
         controls,
-        settings: ['speed', 'quality', 'captions']
+        settings: ['speed', 'quality', 'captions'],
+        seekTime: 10 // 👈 define cuánto avanza/retrocede cada flecha
     });
 
-    // 🎯 Doble toque para avanzar/retroceder 5s
-    const videoWrapper = videoElement?.parentElement;
-    if (videoWrapper && videoElement) {
-        let lastTapLeft = 0;
-        let lastTapRight = 0;
-
-        videoWrapper.addEventListener('touchstart', function (e) {
-            const touch = e.touches[0];
-            const touchX = touch.clientX;
-            const screenWidth = window.innerWidth;
-            const now = new Date().getTime();
-
-            if (touchX < screenWidth / 2) {
-                if (now - lastTapLeft < 300) {
-                    videoElement.currentTime = Math.max(0, videoElement.currentTime - 5);
-                }
-                lastTapLeft = now;
-            } else {
-                if (now - lastTapRight < 300) {
-                    videoElement.currentTime = Math.min(videoElement.duration, videoElement.currentTime + 5);
-                }
-                lastTapRight = now;
-            }
-        });
-    }
+    // ❌ Eliminamos el doble toque/tap porque ya no lo necesitamos
 });
 
-// ==============================
-// 🛡️ Seguridad: bloquear clic derecho y atajos
-// ==============================
-document.addEventListener("contextmenu", (e) => e.preventDefault());
 
-document.addEventListener("keydown", (e) => {
-    if (
-        e.key === "F12" ||
-        (e.ctrlKey && e.shiftKey && e.key === "I") ||
-        (e.ctrlKey && e.key === "u") ||
-        e.ctrlKey || e.shiftKey || e.altKey
-    ) {
-        e.preventDefault();
-    }
-});
 
 // ==============================
 // 🔗 Integración con apps externas
