@@ -96,29 +96,16 @@ if (contactBtn) {
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
     const controls = [
-        'play-large',
-        'rewind',         // ⏪ Añade botón de retroceso 10s
-        'play',
-        'fast-forward',   // ⏩ Añade botón de avance 10s
-        'progress',
-        'current-time',
-        'duration',
-        //'mute',
-        //'volume',
-        'captions',
-        'settings',
-        'pip',
-        'airplay',
-        'fullscreen'
+        'play-large', 'rewind', 'play', 'fast-forward',
+        'progress', 'current-time', 'duration',
+        'mute', 'volume', 
+        'settings', 'pip', 'airplay', 'fullscreen'
     ];
-
-    Plyr.setup('.player', {
+    Plyr.setup('.player', { 
         controls,
-        settings: ['speed', 'quality', 'captions'],
-        seekTime: 10 // 👈 define cuánto avanza/retrocede cada flecha
+        settings: ['speed', 'quality', 'captions']
     });
 
-    // ❌ Eliminamos el doble toque/tap porque ya no lo necesitamos
 });
 
 // ==============================
