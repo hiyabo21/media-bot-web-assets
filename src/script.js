@@ -1,94 +1,174 @@
-// ==============================
-// 🔧 Inicialización de elementos del DOM
-// ==============================
-const homeBtn = document.querySelector(".home-btn");
-const aboutBtn = document.querySelector(".about-btn");
-const contactBtn = document.querySelector(".contact-btn");
+// ===============================================
+// 🔧 Selección de elementos del DOM
+// ===============================================
+let homeBtn = document.querySelector(".home-btn");
+let abtBtn = document.querySelector(".about-btn");
+let dldBtn_outer = document.querySelector(".downloadBtn");
+let file_name = document.querySelector(".file-name");
+let about_nav = document.querySelector(".about-nav");
+let contact_btn = document.querySelector(".contact-btn");
+let links = document.querySelectorAll(".links a");
+let chnl_link = document.querySelectorAll(".chnl-link a");
+let abt_chnl = document.querySelector(".abt-chnl");
+let contact = document.querySelectorAll(".contact a");
+let footer = document.querySelector("footer");
 
-const downloadButtonsContainer = document.querySelector(".downloadBtn");
-const fileNameBox = document.querySelector(".file-name");
-const footer = document.querySelector("footer");
-
-const channelLinks = document.querySelectorAll(".chnl-link a");
-const contactLinks = document.querySelectorAll(".contact a");
-
-const headingTitle = document.getElementById("heading");
-const fileNameText = document.getElementById("myDiv");
-const videoElement = document.getElementById("player");
-
-// ==============================
+// ===============================================
 // ✏️ Variables de estado
-// ==============================
+// ===============================================
 let timer = 0;
 
-// ==============================
-// 🏷️ Branding dinámico
-// ==============================
-if (headingTitle && headingTitle.classList.contains("title")) {
-    headingTitle.textContent = "CINE ESTRENOS";
-}
+// Activa por defecto el botón de inicio
+homeBtn.classList.add('active');
 
-// ==============================
-// 📋 Animación de botones al cargar
-// ==============================
-const allAnimatedButtons = document.querySelectorAll(".downloadBtn button, .links a");
-allAnimatedButtons.forEach((btn) => {
-    btn.style.animation = `strtLoad 1s ease ${timer}s forwards, linksBtnAn 2s ease ${timer}s infinite`;
-    btn.style.setProperty("--beforestyl", `button_shine ${2 + Math.random() * 7}s ease ${Math.random() * 10}s infinite`);
-    timer += 0.3;
+// ===============================================
+// 🔁 Manejo de navegación (eventos de botones)
+// ===============================================
+
+// 👉 Botón "About"
+abtBtn.addEventListener("click", () => {
+    dldBtn_outer.style.display = "none";
+    file_name.style.display = "none";
+    footer.style.display = "none";
+    about_nav.style.display = "block";
+    about_nav.style.animation = "strtLoad 1s ease 0s forwards";
 });
+
+// 👉 Botón "Home"
+homeBtn.addEventListener("click", () => {
+    dldBtn_outer.style.display = "flex";
+    file_name.style.display = "block";
+    footer.style.display = "block";
+    about_nav.style.display = "none";
+    about_nav.style.animation = "strtLoad 1s ease 0s forwards";
+    window.location.href = "#main";
+});
+
+// 👉 Animación en links de "About Channel"
+abt_chnl.addEventListener("click", () => {
+    timer = 1;
+    chnl_link.forEach((i) => {
+        i.style.animation = `strtLoad 1s ease ${timer}s forwards, linksBtnAn 2s ease ${timer}s infinite`;
+        timer += 0.3;
+    });
+    timer = 0;
+});
+
+// ===============================================
+// 📥 Botones desde sección inferior y footer
+// ===============================================
+
+function bot_btn_clicked() {
+    const about_btn = document.querySelector(".about-btn");
+    const links_nryt = document.querySelectorAll('.nryt a');
+    const links_about = document.querySelectorAll('.about-nav a');
+    const wlcm = document.querySelector(".wlcm");
+
+    timer = 1;
+    bot_links.forEach((i) => {
+        i.style.animation = `linksBtnAn 2s ease ${timer}s infinite, strtLoad 1s ease ${timer}s forwards`;
+        timer += 0.3;
+    });
+    timer = 0;
+
+    dldBtn_outer.style.display = "none";
+    file_name.style.display = "none";
+    footer.style.display = "none";
+    about_nav.style.display = "block";
+    about_nav.style.animation = "strtLoad 1s ease 0s forwards";
+
+    links_nryt.forEach(link => link.classList.remove('active'));
+    about_btn.classList.add('active');
+
+    links_about.forEach(link => link.classList.remove('active'));
+    wlcm.classList.add('active');
+
+    bot_btn.classList.add('active');
+}
+
+function footer_btn_clicked() {
+    const about_btn = document.querySelector(".about-btn");
+    const links_nryt = document.querySelectorAll('.nryt a');
+    const links_about = document.querySelectorAll('.about-nav a');
+    const wlcm = document.querySelector(".wlcm");
+
+    timer = 1;
+    contact.forEach((i) => {
+        i.style.animation = `linksBtnAn 2s ease ${timer}s infinite, strtLoad 1s ease ${timer}s forwards`;
+        timer += 0.3;
+    });
+
+    timer = 1;
+    bot_links.forEach((i) => {
+        i.style.animation = `linksBtnAn 2s ease ${timer}s infinite, strtLoad 1s ease ${timer}s forwards`;
+        timer += 0.3;
+    });
+    timer = 0;
+
+    dldBtn_outer.style.display = "none";
+    file_name.style.display = "none";
+    footer.style.display = "none";
+    about_nav.style.display = "block";
+    about_nav.style.animation = "strtLoad 1s ease 0s forwards";
+
+    links_nryt.forEach(link => link.classList.remove('active'));
+    about_btn.classList.add('active');
+    links_about.forEach(link => link.classList.remove('active'));
+    wlcm.classList.add('active');
+
+    contact_btn.classList.add('active');
+}
+
+// 👉 Contacto
+contact_btn.addEventListener("click", () => {
+    timer = 1;
+    contact.forEach((i) => {
+        i.style.animation = `linksBtnAn 2s ease ${timer}s infinite, strtLoad 1s ease ${timer}s forwards`;
+        timer += 0.3;
+    });
+    timer = 0;
+});
+
+// ===============================================
+// 🎨 Animaciones para botones
+// ===============================================
+let dldBtn = document.querySelectorAll('.downloadBtn button');
+dldBtn.forEach((i) => {
+    i.style.animation = `strtLoad 1s ease ${timer}s forwards, linksBtnAn 2s ease ${timer}s infinite`;
+    timer += 0.3;
+    i.style.setProperty("--beforestyl", `button_shine ${2 + Math.random() * 7}s ease ${Math.random() * 10}s infinite`);
+});
+
 timer = 0;
+links.forEach((i) => {
+    i.style.animation = `linksBtnAn 2s ease ${timer}s infinite`;
+    timer += 0.3;
+    i.style.setProperty("--beforestyl", `button_shine ${2 + Math.random() * 7}s ease ${Math.random() * 10}s infinite`);
+});
 
-// ==============================
-// 📦 Limitar tamaño del nombre del archivo
-// ==============================
-if (fileNameText && fileNameText.textContent.length > 300) {
-    fileNameText.textContent = fileNameText.textContent.slice(0, 300) + "....";
+// ===============================================
+// 🧩 Funciones auxiliares de navegación
+// ===============================================
+
+function toggleWidth(element) {
+    document.querySelectorAll('.about-nav a').forEach(link => link.classList.remove('active'));
+    element.classList.add('active');
 }
 
-// ==============================
-// 🧭 Navegación entre secciones
-// ==============================
-
-if (homeBtn) {
-    homeBtn.addEventListener("click", () => {
-        downloadButtonsContainer.style.display = "flex";
-        fileNameBox.style.display = "block";
-        footer.style.display = "block";
-        window.location.href = "#main";
-
-        homeBtn.classList.add("active");
-        aboutBtn?.classList.remove("active");
-        contactBtn?.classList.remove("active");
-    });
+function toggleWidthnav(element) {
+    document.querySelectorAll('.nryt a').forEach(link => link.classList.remove('active'));
+    document.querySelectorAll('.about-nav a').forEach(link => link.classList.remove('active'));
+    element.classList.add('active');
+    document.querySelector(".wlcm").classList.add('active');
 }
 
-if (aboutBtn) {
-    aboutBtn.addEventListener("click", () => {
-        downloadButtonsContainer.style.display = "none";
-        fileNameBox.style.display = "none";
-        footer.style.display = "none";
-
-        homeBtn?.classList.remove("active");
-        aboutBtn.classList.add("active");
-        contactBtn?.classList.remove("active");
-
-        window.location.href = "#abtus";
-    });
-}
-
-if (contactBtn) {
-    contactBtn.addEventListener("click", () => {
-        downloadButtonsContainer.style.display = "none";
-        fileNameBox.style.display = "none";
-        footer.style.display = "none";
-
-        homeBtn?.classList.remove("active");
-        aboutBtn?.classList.remove("active");
-        contactBtn.classList.add("active");
-
-        window.location.href = "#contact";
-    });
+// ===============================================
+// 📝 Limitación de texto para nombre de archivo
+// ===============================================
+let div = document.getElementById('myDiv');
+let text = div.textContent;
+if (text.length > 300) {
+    div.textContent = text.slice(0, 300) + "....";
 }
 
 // ==============================
@@ -108,16 +188,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-// ==============================
-// 🛡️ Seguridad: bloquear clic derecho y atajos
-// ==============================
-document.addEventListener("contextmenu", (e) => e.preventDefault());
-
-document.addEventListener("keydown", (e) => {
+// ===============================================
+// 🛡️ Prevención de acciones del navegador
+// ===============================================
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener('keydown', e => {
     if (
-        e.key === "F12" ||
-        (e.ctrlKey && e.shiftKey && e.key === "I") ||
-        (e.ctrlKey && e.key === "u") ||
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+        (e.ctrlKey && e.key === 'u') ||
         e.ctrlKey || e.shiftKey || e.altKey
     ) {
         e.preventDefault();
@@ -242,3 +321,4 @@ async function n_player() {
         alert("❌ Error al generar el enlace para nPlayer: " + error.message);
     }
 }
+
