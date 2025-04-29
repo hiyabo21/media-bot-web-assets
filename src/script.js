@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
         'current-time',
         'duration',
         //'mute',
-        'volume',
+        //'volume',
         'captions',
         'settings',
         'pip',
@@ -121,7 +121,21 @@ document.addEventListener("DOMContentLoaded", () => {
     // ❌ Eliminamos el doble toque/tap porque ya no lo necesitamos
 });
 
+// ==============================
+// 🛡️ Seguridad: bloquear clic derecho y atajos
+// ==============================
+document.addEventListener("contextmenu", (e) => e.preventDefault());
 
+document.addEventListener("keydown", (e) => {
+    if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && e.key === "I") ||
+        (e.ctrlKey && e.key === "u") ||
+        e.ctrlKey || e.shiftKey || e.altKey
+    ) {
+        e.preventDefault();
+    }
+});
 
 // ==============================
 // 🔗 Integración con apps externas
