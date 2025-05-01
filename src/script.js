@@ -174,6 +174,8 @@ if (text.length > 300) {
 // ==============================
 // 🎬 Configurar reproductor Plyr
 // ==============================
+let playerInstance;
+
 document.addEventListener("DOMContentLoaded", () => {
     const controls = [
         'play-large', 'rewind', 'play', 'fast-forward',
@@ -182,59 +184,67 @@ document.addEventListener("DOMContentLoaded", () => {
         'settings', 'pip', 'airplay', 'fullscreen'
     ];
 
-    // 🟢 Inicializa Plyr con instancia directa
-    const player = new Plyr('#player', {
+    // 🔁 Instancia global
+    playerInstance = new Plyr('#player', {
         controls,
         settings: ['speed', 'quality', 'captions']
     });
 
-    // ✅ Subtítulos dinámicos
-    async function loadDynamicSubtitle() {
-        const messageIdElement = document.getElementById("messageId");
-        if (!messageIdElement) return;
-
-        const messageId = messageIdElement.innerText.trim();
-        const subtitleUrl = `/stream-subtitle/${messageId}`;
-        const video = document.getElementById("player");
-
-        try {
-            const res = await fetch(subtitleUrl, { method: "HEAD" });
-
-            if (res.ok) {
-                const hasSubtitle = [...video.querySelectorAll("track")]
-                    .some(track => track.srclang === "es");
-
-                if (!hasSubtitle) {
-                    const track = document.createElement("track");
-                    track.kind = "captions";
-                    track.label = "Spanish";
-                    track.srclang = "es";
-                    track.src = subtitleUrl;
-                    track.default = true;
-                    video.appendChild(track);
-
-                    // 🟡 Forzar visibilidad del texto
-                    const textTracks = video.textTracks;
-                    if (textTracks.length > 0) {
-                        textTracks[textTracks.length - 1].mode = "showing";
-                    }
-
-                    console.log("✅ Subtítulo agregado dinámicamente.");
-                }
-            } else if (res.status === 202 || res.status === 404) {
-                console.log("⏳ Subtítulo no disponible aún. Reintentando...");
-                setTimeout(loadDynamicSubtitle, 5000);
-            } else {
-                console.error("❌ Error al verificar subtítulo:", res.status);
-            }
-        } catch (error) {
-            console.error("❌ Error al conectar al servidor de subtítulos:", error);
-            setTimeout(loadDynamicSubtitle, 5000);
-        }
-    }
-
     loadDynamicSubtitle();
 });
+
+// ✅ Fuerza reemplazo del subtítulo actual
+async function replaceSubtitle(newSubtitleUrl) {
+    const video = document.getElementById("player");
+
+    // 1. Elimina los anteriores (si existen)
+    video.querySelectorAll("track").forEach(track => track.remove());
+
+    // 2. Crea y agrega el nuevo
+    const track = document.createElement("track");
+    track.kind = "captions";
+    track.label = "Spanish";
+    track.srclang = "es";
+    track.src = newSubtitleUrl;
+    track.default = true;
+    video.appendChild(track);
+
+    // 3. Fuerza visibilidad
+    video.textTracks[video.textTracks.length - 1].mode = "showing";
+
+    console.log("🔁 Subtítulo reemplazado dinámicamente.");
+}
+
+// ✅ Polling automático para subtítulo inicial
+async function loadDynamicSubtitle() {
+    const messageIdElement = document.getElementById("messageId");
+    if (!messageIdElement) return;
+
+    const messageId = messageIdElement.innerText.trim();
+    const subtitleUrl = `/stream-subtitle/${messageId}`;
+    const video = document.getElementById("player");
+
+    try {
+        const res = await fetch(subtitleUrl, { method: "HEAD" });
+
+        if (res.ok) {
+            const hasSubtitle = [...video.querySelectorAll("track")]
+                .some(track => track.srclang === "es");
+
+            if (!hasSubtitle) {
+                await replaceSubtitle(subtitleUrl);
+            }
+        } else if (res.status === 202 || res.status === 404) {
+            console.log("⏳ Subtítulo no disponible aún. Reintentando...");
+            setTimeout(loadDynamicSubtitle, 5000);
+        } else {
+            console.error("❌ Error al verificar subtítulo:", res.status);
+        }
+    } catch (error) {
+        console.error("❌ Error al conectar al servidor de subtítulos:", error);
+        setTimeout(loadDynamicSubtitle, 5000);
+    }
+}
 
 // ==============================
 // 🔗 Integración con apps externas
