@@ -172,90 +172,69 @@ if (text.length > 300) {
 }
 
 // ==============================
-// 🎬 Configurar reproductor Plyr con subtítulos dinámicos
+// 🎬 Configurar reproductor Plyr
 // ==============================
-let playerInstance;
-
 document.addEventListener("DOMContentLoaded", () => {
-    const video = document.getElementById("player");
+    const controls = [
+        'play-large', 'rewind', 'play', 'fast-forward',
+        'progress', 'current-time', 'duration',
+        'mute', 'volume',
+        'settings', 'pip', 'airplay', 'fullscreen'
+    ];
 
-    // Crear instancia de Plyr
-    playerInstance = new Plyr(video, {
-        controls: [
-            'play-large', 'rewind', 'play', 'fast-forward',
-            'progress', 'current-time', 'duration',
-            'mute', 'volume',
-            'settings', 'pip', 'airplay', 'fullscreen'
-        ],
+    // 🟢 Inicializa Plyr con instancia directa
+    const player = new Plyr('#player', {
+        controls,
         settings: ['speed', 'quality', 'captions']
     });
 
-    // Cargar subtítulos dinámicamente
-    loadDynamicSubtitle(video);
-});
+    // ✅ Subtítulos dinámicos
+    async function loadDynamicSubtitle() {
+        const messageIdElement = document.getElementById("messageId");
+        if (!messageIdElement) return;
 
-async function loadDynamicSubtitle(video) {
-    const messageIdElement = document.getElementById("messageId");
-    if (!messageIdElement) return;
+        const messageId = messageIdElement.innerText.trim();
+        const subtitleUrl = `/stream-subtitle/${messageId}`;
+        const video = document.getElementById("player");
 
-    const messageId = messageIdElement.innerText.trim();
-    const subtitleUrl = `/stream-subtitle/${messageId}`;
+        try {
+            const res = await fetch(subtitleUrl, { method: "HEAD" });
 
-    try {
-        const res = await fetch(subtitleUrl, { method: "HEAD" });
+            if (res.ok) {
+                const hasSubtitle = [...video.querySelectorAll("track")]
+                    .some(track => track.srclang === "es");
 
-        if (res.ok) {
-            const hasSubtitle = [...video.querySelectorAll("track")]
-                .some(track => track.srclang === "es" && track.src && !track.src.includes("None"));
+                if (!hasSubtitle) {
+                    const track = document.createElement("track");
+                    track.kind = "captions";
+                    track.label = "Spanish";
+                    track.srclang = "es";
+                    track.src = subtitleUrl;
+                    track.default = true;
+                    video.appendChild(track);
 
-            if (!hasSubtitle) {
-                const track = document.createElement("track");
-                track.kind = "captions";
-                track.label = "Spanish";
-                track.srclang = "es";
-                track.src = subtitleUrl;
-                track.default = true;
-                video.appendChild(track);
+                    // 🟡 Forzar visibilidad del texto
+                    const textTracks = video.textTracks;
+                    if (textTracks.length > 0) {
+                        textTracks[textTracks.length - 1].mode = "showing";
+                    }
 
-                // ✅ Forzar recarga de subtítulos en Plyr
-                const currentTime = video.currentTime;
-                const wasPaused = video.paused;
-
-                const clone = video.cloneNode(true);
-                clone.currentTime = currentTime;
-
-                video.parentNode.replaceChild(clone, video);
-                playerInstance.destroy();
-
-                // Nueva instancia de Plyr sobre el clon
-                playerInstance = new Plyr(clone, {
-                    controls: [
-                        'play-large', 'rewind', 'play', 'fast-forward',
-                        'progress', 'current-time', 'duration',
-                        'mute', 'volume',
-                        'settings', 'pip', 'airplay', 'fullscreen'
-                    ],
-                    settings: ['speed', 'quality', 'captions']
-                });
-
-                if (!wasPaused) {
-                    clone.play().catch(() => {});
+                    console.log("✅ Subtítulo agregado dinámicamente.");
                 }
-
-                console.log("✅ Subtítulo agregado dinámicamente y Plyr reiniciado.");
+            } else if (res.status === 202 || res.status === 404) {
+                console.log("⏳ Subtítulo no disponible aún. Reintentando...");
+                setTimeout(loadDynamicSubtitle, 5000);
+            } else {
+                console.error("❌ Error al verificar subtítulo:", res.status);
             }
-        } else if (res.status === 202 || res.status === 404) {
-            console.log("⏳ Subtítulo no disponible aún. Reintentando...");
-            setTimeout(() => loadDynamicSubtitle(video), 5000);
-        } else {
-            console.error("❌ Error al verificar subtítulo:", res.status);
+        } catch (error) {
+            console.error("❌ Error al conectar al servidor de subtítulos:", error);
+            setTimeout(loadDynamicSubtitle, 5000);
         }
-    } catch (error) {
-        console.error("❌ Error al conectar al servidor de subtítulos:", error);
-        setTimeout(() => loadDynamicSubtitle(video), 5000);
     }
-}
 
+    loadDynamicSubtitle();
+});
 
 // ==============================
 // 🔗 Integración con apps externas
