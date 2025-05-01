@@ -187,7 +187,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // 🔁 Instancia global
     playerInstance = new Plyr('#player', {
         controls,
-        settings: ['speed', 'quality', 'captions']
+        settings: ['speed', 'quality', 'captions'],
+        captions: { active: true, language: 'es', update: true },
+        autoplay: true,
     });
 
     loadDynamicSubtitle();
@@ -197,10 +199,10 @@ document.addEventListener("DOMContentLoaded", () => {
 async function replaceSubtitle(newSubtitleUrl) {
     const video = document.getElementById("player");
 
-    // 1. Elimina los anteriores (si existen)
+    // Elimina los anteriores
     video.querySelectorAll("track").forEach(track => track.remove());
 
-    // 2. Crea y agrega el nuevo
+    // Crea y agrega el nuevo
     const track = document.createElement("track");
     track.kind = "captions";
     track.label = "Spanish";
@@ -209,8 +211,19 @@ async function replaceSubtitle(newSubtitleUrl) {
     track.default = true;
     video.appendChild(track);
 
-    // 3. Fuerza visibilidad
-    video.textTracks[video.textTracks.length - 1].mode = "showing";
+    // Espera a que el track esté listo
+    track.addEventListener("load", () => {
+        const textTrackList = video.textTracks;
+        for (let i = 0; i < textTrackList.length; i++) {
+            textTrackList[i].mode = "hidden"; // Fuerza reinicio
+        }
+        textTrackList[textTrackList.length - 1].mode = "showing"; // Activa el nuevo
+
+        // 🔄 Notifica a Plyr para actualizar los controles
+        if (playerInstance && typeof playerInstance.toggleCaptions === 'function') {
+            playerInstance.toggleCaptions(true);
+        }
+    });
 
     console.log("🔁 Subtítulo reemplazado dinámicamente.");
 }
@@ -228,11 +241,26 @@ async function loadDynamicSubtitle() {
         const res = await fetch(subtitleUrl, { method: "HEAD" });
 
         if (res.ok) {
-            const hasSubtitle = [...video.querySelectorAll("track")]
-                .some(track => track.srclang === "es");
+            const existingTrack = [...video.querySelectorAll("track")]
+                .find(track => track.srclang === "es");
 
-            if (!hasSubtitle) {
+            if (!existingTrack) {
                 await replaceSubtitle(subtitleUrl);
+            } else {
+                // 🔁 Forzar modo visible si ya existe
+                const textTrackList = video.textTracks;
+                for (let i = 0; i < textTrackList.length; i++) {
+                    if (textTrackList[i].language === "es") {
+                        textTrackList[i].mode = "showing";
+                    }
+                }
+
+                // 🔁 Forzar visibilidad en Plyr si aplica
+                if (playerInstance && typeof playerInstance.toggleCaptions === 'function') {
+                    playerInstance.toggleCaptions(true);
+                }
+
+                console.log("✅ Subtítulo ya presente, visibilidad forzada.");
             }
         } else if (res.status === 202 || res.status === 404) {
             console.log("⏳ Subtítulo no disponible aún. Reintentando...");
