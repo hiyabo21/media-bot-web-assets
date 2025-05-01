@@ -184,7 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
         'settings', 'pip', 'airplay', 'fullscreen'
     ];
 
-    // 🔁 Instancia global
     playerInstance = new Plyr('#player', {
         controls,
         settings: ['speed', 'quality', 'captions'],
@@ -195,14 +194,11 @@ document.addEventListener("DOMContentLoaded", () => {
     loadDynamicSubtitle();
 });
 
-// ✅ Fuerza reemplazo del subtítulo actual
 async function replaceSubtitle(newSubtitleUrl) {
     const video = document.getElementById("player");
 
-    // Elimina los anteriores
     video.querySelectorAll("track").forEach(track => track.remove());
 
-    // Crea y agrega el nuevo
     const track = document.createElement("track");
     track.kind = "captions";
     track.label = "Spanish";
@@ -211,24 +207,20 @@ async function replaceSubtitle(newSubtitleUrl) {
     track.default = true;
     video.appendChild(track);
 
-    // Espera a que el track esté listo
     track.addEventListener("load", () => {
-        const textTrackList = video.textTracks;
-        for (let i = 0; i < textTrackList.length; i++) {
-            textTrackList[i].mode = "hidden"; // Fuerza reinicio
+        const textTrack = [...video.textTracks].find(t => t.language === "es");
+        if (textTrack) {
+            textTrack.mode = "showing";
         }
-        textTrackList[textTrackList.length - 1].mode = "showing"; // Activa el nuevo
 
-        // 🔄 Notifica a Plyr para actualizar los controles
-        if (playerInstance && typeof playerInstance.toggleCaptions === 'function') {
-            playerInstance.toggleCaptions(true);
+        if (playerInstance && playerInstance.captions) {
+            playerInstance.captions.setup();
         }
+
+        console.log("🔁 Subtítulo reemplazado y activado correctamente.");
     });
-
-    console.log("🔁 Subtítulo reemplazado dinámicamente.");
 }
 
-// ✅ Polling automático para subtítulo inicial
 async function loadDynamicSubtitle() {
     const messageIdElement = document.getElementById("messageId");
     if (!messageIdElement) return;
@@ -247,7 +239,6 @@ async function loadDynamicSubtitle() {
             if (!existingTrack) {
                 await replaceSubtitle(subtitleUrl);
             } else {
-                // 🔁 Forzar modo visible si ya existe
                 const textTrackList = video.textTracks;
                 for (let i = 0; i < textTrackList.length; i++) {
                     if (textTrackList[i].language === "es") {
@@ -255,9 +246,8 @@ async function loadDynamicSubtitle() {
                     }
                 }
 
-                // 🔁 Forzar visibilidad en Plyr si aplica
-                if (playerInstance && typeof playerInstance.toggleCaptions === 'function') {
-                    playerInstance.toggleCaptions(true);
+                if (playerInstance && playerInstance.captions) {
+                    playerInstance.captions.setup();
                 }
 
                 console.log("✅ Subtítulo ya presente, visibilidad forzada.");
@@ -273,6 +263,7 @@ async function loadDynamicSubtitle() {
         setTimeout(loadDynamicSubtitle, 5000);
     }
 }
+
 
 // ==============================
 // 🔗 Integración con apps externas
@@ -325,7 +316,11 @@ async function vlc_player() {
         const open = streamLink.replace(/^https?:\/\//, '');
 
         // Intenta abrir VLC
-        window.location.href = `vlc://${open}`;
+        const a = document.createElement("a");
+        a.href = `vlc://${open}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
         // También copia el link al portapapeles
         if (navigator.clipboard && window.isSecureContext) {
@@ -352,7 +347,11 @@ async function mx_player() {
         const open = streamLink.replace(/^https?:\/\//, '');
 
         // Abrir en MX Player
-        window.location.href = `intent://${open}#Intent;package=com.mxtech.videoplayer.ad;action=android.intent.action.VIEW;end`;
+        const a = document.createElement("a");
+        a.href = `intent://${open}#Intent;package=com.mxtech.videoplayer.ad;action=android.intent.action.VIEW;end`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
         // Copia al portapapeles como respaldo
         if (navigator.clipboard && window.isSecureContext) {
@@ -379,8 +378,12 @@ async function n_player() {
         const open = streamLink.replace(/^https?:\/\//, '');
 
         // Abrir en nPlayer
-        window.location.href = `intent://${open}#Intent;package=com.newin.nplayer.pro;action=android.intent.action.VIEW;end`;
-
+        const a = document.createElement("a");
+        a.href = `intent://${open}#Intent;package=com.newin.nplayer.pro;action=android.intent.action.VIEW;end`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
         // Copia al portapapeles como respaldo
         if (navigator.clipboard && window.isSecureContext) {
             await navigator.clipboard.writeText(streamLink);
