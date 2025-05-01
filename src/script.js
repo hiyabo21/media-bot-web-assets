@@ -178,30 +178,56 @@ document.addEventListener("DOMContentLoaded", () => {
     const controls = [
         'play-large', 'rewind', 'play', 'fast-forward',
         'progress', 'current-time', 'duration',
-        'mute', 'volume', 
+        'mute', 'volume',
         'settings', 'pip', 'airplay', 'fullscreen'
     ];
-    Plyr.setup('.player', { 
+    Plyr.setup('.player', {
         controls,
         settings: ['speed', 'quality', 'captions']
     });
 
+    // ✅ Subtítulos dinámicos
+    async function loadDynamicSubtitle() {
+        const messageIdElement = document.getElementById("messageId");
+        if (!messageIdElement) return;
+
+        const messageId = messageIdElement.innerText.trim();
+        const subtitleUrl = `/stream-subtitle/${messageId}`;
+        const video = document.getElementById("player");
+
+        try {
+            const res = await fetch(subtitleUrl, { method: "HEAD" });
+
+            if (res.ok) {
+                const hasSubtitle = [...video.querySelectorAll("track")]
+                    .some(track => track.srclang === "es");
+
+                if (!hasSubtitle) {
+                    const track = document.createElement("track");
+                    track.kind = "captions";
+                    track.label = "Spanish";
+                    track.srclang = "es";
+                    track.src = subtitleUrl;
+                    track.default = true;
+                    video.appendChild(track);
+                    console.log("✅ Subtítulo agregado dinámicamente.");
+                }
+            } else if (res.status === 202 || res.status === 404) {
+                console.log("⏳ Subtítulo no disponible aún. Reintentando...");
+                setTimeout(loadDynamicSubtitle, 5000);
+            } else {
+                console.error("❌ Error al verificar subtítulo:", res.status);
+            }
+        } catch (error) {
+            console.error("❌ Error al conectar al servidor de subtítulos:", error);
+            setTimeout(loadDynamicSubtitle, 5000);
+        }
+    }
+
+    loadDynamicSubtitle();
 });
 
-// ===============================================
-// 🛡️ Prevención de acciones del navegador
-// ===============================================
-document.addEventListener("contextmenu", e => e.preventDefault());
-document.addEventListener('keydown', e => {
-    if (
-        e.key === 'F12' ||
-        (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-        (e.ctrlKey && e.key === 'u') ||
-        e.ctrlKey || e.shiftKey || e.altKey
-    ) {
-        e.preventDefault();
-    }
-});
+
 
 // ==============================
 // 🔗 Integración con apps externas
@@ -321,4 +347,3 @@ async function n_player() {
         alert("❌ Error al generar el enlace para nPlayer: " + error.message);
     }
 }
-
