@@ -186,46 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
         settings: ['speed', 'quality', 'captions'],
         autoplay: true,
     });
-
-    // ✅ Subtítulos dinámicos
-    async function loadDynamicSubtitle() {
-        const messageIdElement = document.getElementById("messageId");
-        if (!messageIdElement) return;
-
-        const messageId = messageIdElement.innerText.trim();
-        const subtitleUrl = `/stream-subtitle/${messageId}`;
-        const video = document.getElementById("player");
-
-        try {
-            const res = await fetch(subtitleUrl, { method: "HEAD" });
-
-            if (res.ok) {
-                const hasSubtitle = [...video.querySelectorAll("track")]
-                    .some(track => track.srclang === "es");
-
-                if (!hasSubtitle) {
-                    const track = document.createElement("track");
-                    track.kind = "captions";
-                    track.label = "Spanish";
-                    track.srclang = "es";
-                    track.src = subtitleUrl;
-                    track.default = true;
-                    video.appendChild(track);
-                    console.log("✅ Subtítulo agregado dinámicamente.");
-                }
-            } else if (res.status === 202 || res.status === 404) {
-                console.log("⏳ Subtítulo no disponible aún. Reintentando...");
-                setTimeout(loadDynamicSubtitle, 5000);
-            } else {
-                console.error("❌ Error al verificar subtítulo:", res.status);
-            }
-        } catch (error) {
-            console.error("❌ Error al conectar al servidor de subtítulos:", error);
-            setTimeout(loadDynamicSubtitle, 5000);
-        }
-    }
-
-    loadDynamicSubtitle();
 });
 
 // ==============================
