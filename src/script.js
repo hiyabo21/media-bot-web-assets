@@ -230,54 +230,6 @@ function addSubtitleTrackForPlyr(player, subtitleUrl) {
     console.log("✅ Subtitles track added successfully");
   }
 
-// Function to integrate with your existing code
-function integrateSubtitleLoader() {
-    // Wait for DOM to be ready
-    document.addEventListener("DOMContentLoaded", () => {
-      // Wait a bit to ensure Plyr is fully initialized
-      setTimeout(() => {
-        // Get the Plyr instance - this is how Plyr stores its instance
-        const playerElement = document.querySelector('.plyr');
-        if (!playerElement) {
-          console.error("Plyr element not found");
-          return;
-        }
-        
-        // Get the Plyr instance from the element
-        const player = playerElement.plyr;
-        if (!player) {
-          console.error("Plyr instance not found");
-          return;
-        }
-        
-        // Get message ID from your hidden element
-        const messageId = document.getElementById("messageId").innerText.trim();
-        
-        // Load subtitles
-        loadSubtitles(player, messageId);
-        
-        // Add a button to manually reload subtitles
-        const reloadSubtitlesButton = document.createElement('button');
-        reloadSubtitlesButton.className = 'magnet';
-        reloadSubtitlesButton.innerHTML = '<img src="https://i.ibb.co/px6fQs1/vlc.png" alt="">cargar subtítulos';
-        reloadSubtitlesButton.addEventListener('click', () => {
-          loadSubtitles(player, messageId);
-        });
-        
-        // Add the button to your downloadBtn container
-        const downloadBtnContainer = document.querySelector('.downloadBtn');
-        if (downloadBtnContainer) {
-          downloadBtnContainer.appendChild(reloadSubtitlesButton);
-        }
-      }, 1000); // Wait 1 second to ensure everything is loaded
-    });
-  }
-
-// Call the integration function
-integrateSubtitleLoader();
-
-console.log("Plyr-compatible subtitle loading code ready to be integrated");
-
 // ==============================
 // 🎬 Configurar reproductor Plyr
 // ==============================
