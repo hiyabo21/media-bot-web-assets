@@ -191,8 +191,8 @@ function loadSubtitles(player, messageId) {
       })
       .catch(error => {
         console.error("Error checking subtitle availability:", error);
-    });
-}
+      });
+  }
 
 // Function to add subtitle track to player
 function addSubtitleTrack(player, subtitleUrl) {
@@ -211,7 +211,6 @@ function addSubtitleTrack(player, subtitleUrl) {
     player.media.appendChild(track);
     
     // Force Plyr to recognize the new track
-    // Instead of player.restart() which doesn't exist, we'll use this approach:
     const currentTime = player.currentTime;
     const wasPlaying = !player.paused;
     
@@ -220,9 +219,9 @@ function addSubtitleTrack(player, subtitleUrl) {
     
     // Wait a moment for the track to be recognized
     setTimeout(() => {
-      // Enable captions
-      if (player.captions) {
-        player.captions.toggle(true);
+      // Enable captions using the correct method
+      if (typeof player.toggleCaptions === 'function') {
+        player.toggleCaptions(true);
       }
       
       // Restore playback state
@@ -239,6 +238,12 @@ function addSubtitleTrack(player, subtitleUrl) {
 // 🎬 Configurar reproductor Plyr
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
+    // Check if Plyr is already defined (e.g., through a script tag)
+    if (typeof Plyr === 'undefined') {
+      console.error('Plyr is not defined. Make sure you have included the Plyr library in your HTML.');
+      return; // Exit if Plyr is not defined
+    }
+  
     const controls = [
       'play-large', 'rewind', 'play', 'fast-forward',
       'progress', 'current-time', 'duration',
@@ -246,7 +251,6 @@ document.addEventListener("DOMContentLoaded", () => {
       'settings', 'pip', 'airplay', 'fullscreen'
     ];
     
-    // Initialize Plyr
     const player = new Plyr('.player', {
       controls,
       settings: ['speed', 'quality', 'captions'],
@@ -274,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   
   console.log("Dynamic subtitle loading code ready to be integrated into your project");
-
+  
 // ==============================
 // 🔗 Integración con apps externas
 // ==============================
