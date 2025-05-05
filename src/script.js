@@ -171,22 +171,109 @@ if (text.length > 300) {
     div.textContent = text.slice(0, 300) + "....";
 }
 
+// Function to dynamically load subtitles
+function loadSubtitles(player, messageId) {
+    const baseUrl = window.location.origin;
+    const subtitleUrl = `${baseUrl}/stream-subtitle/${messageId}`;
+    
+    // First check if subtitle is available
+    fetch(subtitleUrl, { method: 'HEAD' })
+      .then(response => {
+        if (response.ok) {
+          console.log("✅ Subtitles available, loading...");
+          addSubtitleTrack(player, subtitleUrl);
+        } else if (response.status === 202) {
+          console.log("⏳ Subtitles are being processed, will retry in 5 seconds...");
+          setTimeout(() => loadSubtitles(player, messageId), 5000);
+        } else {
+          console.log("❌ No subtitles available for this video");
+        }
+      })
+      .catch(error => {
+        console.error("Error checking subtitle availability:", error);
+    });
+}
+
+// Function to add subtitle track to player
+function addSubtitleTrack(player, subtitleUrl) {
+    // Remove any existing subtitle tracks
+    const existingTracks = player.media.querySelectorAll('track');
+    existingTracks.forEach(track => track.remove());
+    
+    // Create and add new track element
+    const track = document.createElement('track');
+    track.kind = 'subtitles';
+    track.label = 'Español';
+    track.srclang = 'es';
+    track.src = subtitleUrl;
+    track.default = true;
+    
+    player.media.appendChild(track);
+    
+    // Force Plyr to recognize the new track
+    // Instead of player.restart() which doesn't exist, we'll use this approach:
+    const currentTime = player.currentTime;
+    const wasPlaying = !player.paused;
+    
+    // Briefly pause to let the track load
+    player.pause();
+    
+    // Wait a moment for the track to be recognized
+    setTimeout(() => {
+      // Enable captions
+      if (player.captions) {
+        player.captions.toggle(true);
+      }
+      
+      // Restore playback state
+      player.currentTime = currentTime;
+      if (wasPlaying) {
+        player.play();
+      }
+    }, 300);
+    
+    console.log("✅ Subtitles loaded successfully");
+  }
+
 // ==============================
 // 🎬 Configurar reproductor Plyr
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
     const controls = [
-        'play-large', 'rewind', 'play', 'fast-forward',
-        'progress', 'current-time', 'duration',
-        'mute', 'volume',
-        'settings', 'pip', 'airplay', 'fullscreen'
+      'play-large', 'rewind', 'play', 'fast-forward',
+      'progress', 'current-time', 'duration',
+      'mute', 'volume', 'captions',
+      'settings', 'pip', 'airplay', 'fullscreen'
     ];
-    Plyr.setup('.player', {
-        controls,
-        settings: ['speed', 'quality', 'captions'],
-        autoplay: true,
+    
+    // Initialize Plyr
+    const player = new Plyr('.player', {
+      controls,
+      settings: ['speed', 'quality', 'captions'],
+      autoplay: true,
     });
-});
+    
+    // Get message ID from your hidden element
+    const messageId = document.getElementById("messageId").innerText.trim();
+    
+    // Once player is ready, load subtitles
+    player.on('ready', () => {
+      loadSubtitles(player, messageId);
+    });
+    
+    // Add a button to manually reload subtitles
+    const reloadSubtitlesButton = document.createElement('button');
+    reloadSubtitlesButton.className = 'magnet';
+    reloadSubtitlesButton.innerHTML = '<img src="https://i.ibb.co/px6fQs1/vlc.png" alt="">cargar subtítulos';
+    reloadSubtitlesButton.addEventListener('click', () => {
+      loadSubtitles(player, messageId);
+    });
+    
+    // Add the button to your downloadBtn container
+    document.querySelector('.downloadBtn').appendChild(reloadSubtitlesButton);
+  });
+  
+  console.log("Dynamic subtitle loading code ready to be integrated into your project");
 
 // ==============================
 // 🔗 Integración con apps externas
